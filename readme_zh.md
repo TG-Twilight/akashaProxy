@@ -37,7 +37,7 @@ akashaProxy 是 ~~mihomo~~clashMeta 衍生的Magisk/KernelSU模块
 
 yacd管理面板：127.0.0.1:9090/ui（默认）
 
-> 将config.yaml.example重命名为config.yaml后填写配置文件，或者使用你自己的配置文件
+> 将config.example.yaml重命名为config.yaml后填写配置文件，或者使用你自己的配置文件
 
 clash教程：
 https://wiki.metacubex.one

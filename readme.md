@@ -37,7 +37,7 @@ The name is modified from the void terminal of [clashMeta document](https://wiki
 
 yacd management panel: 127.0.0.1:9090/ui (default)
 
->Rename config.yaml.example to config.yaml and fill in the configuration file, or use your own configuration file
+>Rename config.example.yaml to config.yaml and fill in the configuration file, or use your own configuration file
 
 clash tutorial:
 https://wiki.metacubex.one
