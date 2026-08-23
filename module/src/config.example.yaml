@@ -336,10 +336,23 @@ rules:
   - RULE-SET,AI,人工智能                            # 其余国外 AI 服务
 
   # ---------- 社交 ----------
+  # 国内社交 App 用 PROCESS-NAME 按包名整体归类, 能连带三方 CDN/统计一起兜住,
+  # 比只靠域名规则更彻底 (依赖上面的 find-process-mode: strict; 内核上报的就是 Android 包名)。
+  # 广告拦截在本节之前, 所以 App 内的广告域名仍然会被秋风规则拦掉。
+  # 想加自己的 App: adb shell pm list packages -3 查包名, 照下面的格式加一行即可。
+  - PROCESS-NAME,com.xingin.xhs,国内社交               # 小红书
+  - PROCESS-NAME,com.max.xiaoheihe,国内社交            # 小黑盒
+  - PROCESS-NAME,com.ss.android.ugc.aweme,国内社交     # 抖音
+  - PROCESS-NAME,com.ss.android.ugc.livelite,国内社交  # 抖音极速版
+  - PROCESS-NAME,com.tencent.mm,国内社交               # 微信
+  - PROCESS-NAME,com.tencent.mobileqq,国内社交         # QQ
+  - RULE-SET,Xiaohongshu,国内社交
+  - RULE-SET,Xiaoheihe,国内社交
+  - RULE-SET,Douyin,国内社交
+  - RULE-SET,SocialCN,国内社交                      # 微博/知乎/B站 等其余国内社交
   - RULE-SET,Telegram,海外社交
   - RULE-SET,Twitter,海外社交                       # X
   - RULE-SET,SocialOversea,海外社交                 # Facebook/Instagram/Discord/Reddit/WhatsApp 等
-  - RULE-SET,SocialCN,国内社交                      # 微信/QQ/微博/小红书/抖音 等
 
   # ---------- 媒体 ----------
   - RULE-SET,YouTube,国际媒体
@@ -412,6 +425,9 @@ rule-providers:
   Twitter:       {<<: *RuleDomain, url: 'https://gcore.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/twitter.mrs'}
   SocialOversea: {<<: *RuleDomain, url: 'https://gcore.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/category-social-media-!cn.mrs'}
   SocialCN:      {<<: *RuleDomain, url: 'https://gcore.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/category-social-media-cn.mrs'}
+  Xiaohongshu:   {<<: *RuleDomain, url: 'https://gcore.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/xiaohongshu.mrs'}
+  Xiaoheihe:     {<<: *RuleDomain, url: 'https://gcore.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/xiaoheihe.mrs'}
+  Douyin:        {<<: *RuleDomain, url: 'https://gcore.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/douyin.mrs'}
 
   # ---------- 媒体 ----------
   YouTube:       {<<: *RuleDomain, url: 'https://gcore.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/youtube.mrs'}
