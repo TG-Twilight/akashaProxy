@@ -38,18 +38,24 @@ BaseHash:  &BaseHash  {type: load-balance, interval: 300, lazy: true, url: 'http
 BaseRobin: &BaseRobin {type: load-balance, interval: 300, lazy: true, url: 'https://www.gstatic.com/generate_204', strategy: round-robin, hidden: true}
 
 # 节点地区筛选正则
-# mihomo 的 filter 支持零宽断言, 拉丁字母国家代码一律用 (?<![a-z])xx(?![a-z]) 包住,
-# 否则 Russia 会被当成 us, Ukraine 会被当成 uk, example 会被当成 pl, Digital 会被当成 it
-FilterHK: &FilterHK '^(?=.*(?i)(港|🇭🇰|(?<![a-z])(?:hk|hkg|hongkong|hong\s?kong)(?![a-z])))(?!.*(?i)(台|臺|(?<![a-z])(?:tw|twn|taiwan)(?![a-z]))).*$'
-FilterTW: &FilterTW '^(?=.*(?i)(台|臺|🇹🇼|(?<![a-z])(?:tw|twn|taiwan|tpe|khh)(?![a-z])))(?!.*(?i)(泰|(?<![a-z])(?:th|thai|thailand)(?![a-z]))).*$'
-FilterJP: &FilterJP '^(?=.*(?i)(日|🇯🇵|東京|东京|大阪|埼玉|(?<![a-z])(?:jp|jpn|japan|nrt|hnd|kix|itm)(?![a-z])))(?!.*(?i)(尼日|生日|明日)).*$'
-FilterKR: &FilterKR '^(?=.*(?i)(韩|韓|首尔|首爾|🇰🇷|(?<![a-z])(?:kr|kor|korea|icn|gmp)(?![a-z]))).*$'
-FilterSG: &FilterSG '^(?=.*(?i)(新加坡|狮城|獅城|🇸🇬|(?<![a-z])(?:sg|sgp|singapore|sin)(?![a-z]))).*$'
-FilterUS: &FilterUS '^(?=.*(?i)(美|🇺🇸|洛杉矶|洛杉磯|圣何塞|聖何塞|硅谷|凤凰城|鳳凰城|达拉斯|西雅图|(?<![a-z])(?:us|usa|united\s?states|lax|sjc|jfk|ord|sea|iad|dfw|mia)(?![a-z])))(?!.*(?i)(澳|南美|中美|(?<![a-z])(?:plus|australia)(?![a-z]))).*$'
-FilterUK: &FilterUK '^(?=.*(?i)(英|伦敦|倫敦|🇬🇧|(?<![a-z])(?:uk|london|kingdom|lhr|lgw)(?![a-z]))).*$'
-FilterEU: &FilterEU '^(?=.*(?i)(德|法|荷|瑞|意|西班牙|葡萄牙|波兰|波蘭|奥地利|奧地利|比利时|比利時|捷克|丹麦|丹麥|芬兰|芬蘭|爱尔兰|愛爾蘭|挪威|匈牙利|罗马尼亚|羅馬尼亞|希腊|希臘|土耳其|俄|🇩🇪|🇫🇷|🇳🇱|🇸🇪|🇨🇭|🇮🇹|🇪🇸|🇵🇹|🇵🇱|🇦🇹|🇧🇪|🇨🇿|🇩🇰|🇫🇮|🇮🇪|🇳🇴|🇭🇺|🇷🇴|🇬🇷|🇹🇷|🇷🇺|(?<![a-z])(?:de|deu|fr|fra|nl|nld|se|swe|ch|che|it|ita|es|esp|pt|prt|pl|pol|aut|austria|bel|belgium|cz|cze|dk|dnk|fi|fin|ie|irl|nor|norway|hu|hun|ro|rou|gr|grc|ru|rus|tr|tur|cdg|ams|arn|mad|lis|vie|waw|zrh|bru)(?![a-z])))(?!.*(?i)(英|伦敦|倫敦|(?<![a-z])(?:uk|london)(?![a-z]))).*$'
+# 两条铁律, 改之前务必先看:
+#  1) 绝不使用裸的单字中文 (日/美/英/港/台/韩/德/法...)。机场前缀会被误命中 ——
+#     例如 additional-prefix 设成 '[日用] ' 时, 裸的 "日" 会让该机场的每个节点
+#     都被判成日本节点。一律用双字国名/城市名。
+#  2) 拉丁字母国家代码一律用 (?<![a-z])xx(?![a-z]) 包边界, 否则 Russia 会被判成
+#     us, Ukraine 判成 uk, No.1 判成挪威, 10Gb 判成英国, example 判成波兰。
+# 如果你的机场节点名既没有 flag emoji 也没有国家代码 (例如只写 "日 01"),
+# 请自行往对应 Filter 里补上你机场用的写法。
+FilterHK: &FilterHK '^(?=.*(?i)(香港|沪港|滬港|广港|廣港|深港|京港|🇭🇰|(?<![a-z])(?:hk|hkg|hongkong|hong\s?kong)(?![a-z])))(?!.*(?i)(台湾|臺灣|🇹🇼)).*$'
+FilterTW: &FilterTW '^(?=.*(?i)(台湾|臺灣|台北|臺北|台中|臺中|台南|臺南|沪台|滬台|广台|廣台|深台|🇹🇼|(?<![a-z])(?:tw|twn|taiwan|tpe|khh)(?![a-z]))).*$'
+FilterJP: &FilterJP '^(?=.*(?i)(日本|東京|东京|大阪|埼玉|名古屋|福冈|福岡|沪日|滬日|广日|廣日|深日|川日|泉日|🇯🇵|(?<![a-z])(?:jp|jpn|japan|nrt|hnd|kix|itm|tyo)(?![a-z]))).*$'
+FilterKR: &FilterKR '^(?=.*(?i)(韩国|韓國|首尔|首爾|沪韩|滬韩|广韩|廣韓|深韩|🇰🇷|(?<![a-z])(?:kr|kor|korea|icn|gmp)(?![a-z]))).*$'
+FilterSG: &FilterSG '^(?=.*(?i)(新加坡|狮城|獅城|沪新|滬新|广新|廣新|深新|🇸🇬|(?<![a-z])(?:sg|sgp|singapore|sin)(?![a-z]))).*$'
+FilterUS: &FilterUS '^(?=.*(?i)(美国|美國|美西|美东|美東|洛杉矶|洛杉磯|圣何塞|聖何塞|硅谷|凤凰城|鳳凰城|达拉斯|達拉斯|西雅图|西雅圖|纽约|紐約|沪美|滬美|广美|廣美|深美|🇺🇸|(?<![a-z])(?:us|usa|united\s?states|lax|sjc|jfk|ord|sea|iad|dfw|mia)(?![a-z])))(?!.*(?i)(🇦🇺|澳大利亚|澳洲|(?<![a-z])(?:au|aus|australia)(?![a-z]))).*$'
+FilterUK: &FilterUK '^(?=.*(?i)(英国|英國|伦敦|倫敦|🇬🇧|(?<![a-z])(?:uk|gbr|london|kingdom|lhr|lgw)(?![a-z]))).*$'
+FilterEU: &FilterEU '^(?=.*(?i)(德国|德國|法国|法國|荷兰|荷蘭|瑞典|瑞士|意大利|義大利|西班牙|葡萄牙|波兰|波蘭|奥地利|奧地利|比利时|比利時|捷克|丹麦|丹麥|芬兰|芬蘭|爱尔兰|愛爾蘭|挪威|匈牙利|罗马尼亚|羅馬尼亞|希腊|希臘|土耳其|俄罗斯|俄羅斯|莫斯科|法兰克福|法蘭克福|阿姆斯特丹|苏黎世|蘇黎世|🇩🇪|🇫🇷|🇳🇱|🇸🇪|🇨🇭|🇮🇹|🇪🇸|🇵🇹|🇵🇱|🇦🇹|🇧🇪|🇨🇿|🇩🇰|🇫🇮|🇮🇪|🇳🇴|🇭🇺|🇷🇴|🇬🇷|🇹🇷|🇷🇺|(?<![a-z])(?:de|deu|fr|fra|nl|nld|se|swe|ch|che|it|ita|es|esp|pt|prt|pl|pol|aut|austria|bel|belgium|cz|cze|dk|dnk|fi|fin|ie|irl|nor|norway|hu|hun|ro|rou|gr|grc|ru|rus|tr|tur|cdg|ams|arn|mad|lis|vie|waw|zrh|bru)(?![a-z])))(?!.*(?i)(英国|英國|伦敦|倫敦|🇬🇧|(?<![a-z])(?:uk|london)(?![a-z]))).*$'
 # 其他地区: 排除上面所有已划分地区, 同时排除机场的信息节点
-FilterOT: &FilterOT '^(?!.*(?i)(直连|港|台|臺|(?<!尼)日|韩|韓|首尔|首爾|新加坡|狮城|獅城|(?<![南中])美|英|伦敦|倫敦|德|法|荷|瑞|意|西班牙|葡萄牙|波兰|波蘭|奥地利|奧地利|比利时|比利時|捷克|丹麦|丹麥|芬兰|芬蘭|爱尔兰|愛爾蘭|挪威|匈牙利|罗马尼亚|羅馬尼亞|希腊|希臘|土耳其|俄|洛杉矶|洛杉磯|圣何塞|聖何塞|硅谷|凤凰城|鳳凰城|东京|東京|大阪|埼玉|🇭🇰|🇹🇼|🇯🇵|🇰🇷|🇸🇬|🇺🇸|🇬🇧|🇩🇪|🇫🇷|🇳🇱|🇸🇪|🇨🇭|🇮🇹|🇪🇸|🇵🇹|🇵🇱|🇦🇹|🇧🇪|🇨🇿|🇩🇰|🇫🇮|🇮🇪|🇳🇴|🇭🇺|🇷🇴|🇬🇷|🇹🇷|🇷🇺|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|重置|剩余|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|(?<![a-z])(?:direct|reject|hk|hkg|hongkong|tw|twn|taiwan|tpe|jp|jpn|japan|nrt|hnd|kix|kr|kor|korea|icn|sg|sgp|singapore|sin|us|usa|lax|sjc|jfk|ord|sea|iad|dfw|mia|uk|london|kingdom|lhr|lgw|de|deu|fr|fra|nl|nld|se|swe|ch|che|it|ita|es|esp|pt|prt|pl|pol|aut|bel|cz|cze|dk|dnk|fi|fin|ie|irl|nor|hu|hun|ro|rou|gr|grc|ru|rus|tr|tur|cdg|ams|arn|mad|lis|vie|waw|zrh|bru|used|total|expire|email|panel|channel|author)(?![a-z]))).*$'
+FilterOT: &FilterOT '^(?!.*(?i)(香港|沪港|滬港|广港|廣港|深港|京港|台湾|臺灣|台北|臺北|台中|臺中|台南|臺南|沪台|滬台|广台|廣台|深台|日本|東京|东京|大阪|埼玉|名古屋|福冈|福岡|沪日|滬日|广日|廣日|深日|川日|泉日|韩国|韓國|首尔|首爾|沪韩|滬韩|广韩|廣韓|深韩|新加坡|狮城|獅城|沪新|滬新|广新|廣新|深新|美国|美國|美西|美东|美東|洛杉矶|洛杉磯|圣何塞|聖何塞|硅谷|凤凰城|鳳凰城|达拉斯|達拉斯|西雅图|西雅圖|纽约|紐約|沪美|滬美|广美|廣美|深美|英国|英國|伦敦|倫敦|德国|德國|法国|法國|荷兰|荷蘭|瑞典|瑞士|意大利|義大利|西班牙|葡萄牙|波兰|波蘭|奥地利|奧地利|比利时|比利時|捷克|丹麦|丹麥|芬兰|芬蘭|爱尔兰|愛爾蘭|挪威|匈牙利|罗马尼亚|羅馬尼亞|希腊|希臘|土耳其|俄罗斯|俄羅斯|莫斯科|法兰克福|法蘭克福|阿姆斯特丹|苏黎世|蘇黎世|🇭🇰|🇹🇼|🇯🇵|🇰🇷|🇸🇬|🇺🇸|🇬🇧|🇩🇪|🇫🇷|🇳🇱|🇸🇪|🇨🇭|🇮🇹|🇪🇸|🇵🇹|🇵🇱|🇦🇹|🇧🇪|🇨🇿|🇩🇰|🇫🇮|🇮🇪|🇳🇴|🇭🇺|🇷🇴|🇬🇷|🇹🇷|🇷🇺|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|重置|剩余|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|(?<![a-z])(?:direct|reject|hk|hkg|hongkong|tw|twn|taiwan|tpe|khh|jp|jpn|japan|nrt|hnd|kix|itm|tyo|kr|kor|korea|icn|gmp|sg|sgp|singapore|sin|us|usa|lax|sjc|jfk|ord|sea|iad|dfw|mia|uk|gbr|london|kingdom|lhr|lgw|de|deu|fr|fra|nl|nld|se|swe|ch|che|it|ita|es|esp|pt|prt|pl|pol|aut|bel|cz|cze|dk|dnk|fi|fin|ie|irl|nor|hu|hun|ro|rou|gr|grc|ru|rus|tr|tur|cdg|ams|arn|mad|lis|vie|waw|zrh|bru|used|total|expire|email|panel|channel|author)(?![a-z]))).*$'
 # 全部节点: 排除内置策略和机场的信息节点
 FilterALL: &FilterALL '^(?!.*(?i)(直连|群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|重置|剩余|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|(?<![a-z])(?:direct|reject|used|total|expire|email|panel|channel|author)(?![a-z]))).*$'
 
