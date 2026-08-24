@@ -247,11 +247,6 @@ proxy-groups:
   - {name: 金融平台, <<: *SelectSG,     icon: 'https://gcore.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Cryptocurrency.png'}
   - {name: 游戏平台, <<: *SelectHK,     icon: 'https://gcore.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Game.png'}
 
-  # ---------- WiFi Calling (VoWiFi) ----------
-  # Giffgaff 走 O2 UK 网络, 人在国外时 ePDG 必须从英国 IP 接入, 所以默认选英国;
-  # 人就在英国本地时改成 直接连接 即可
-  - {name: WiFi通话, type: select, proxies: [英国, 直接连接, 欧洲, 手动选择], icon: 'https://gcore.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/WiFi.png'}
-
   # ---------- 地区策略 (自动 / 负载均衡) ----------
   - {name: 香港,     type: select, proxies: [香港自动, 香港均衡-散列, 香港均衡-轮询], include-all: true, filter: *FilterHK, icon: 'https://gcore.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png'}
   - {name: 台湾,     type: select, proxies: [台湾自动, 台湾均衡-散列, 台湾均衡-轮询], include-all: true, filter: *FilterTW, icon: 'https://gcore.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Taiwan.png'}
@@ -307,20 +302,11 @@ rules:
   - IP-CIDR,203.107.1.0/24,广告拦截,no-resolve      # 阿里云 HTTPDNS
   - RULE-SET,AWAvenue,广告拦截                      # 秋风广告规则
 
-  # ---------- WiFi Calling (VoWiFi / Giffgaff) ----------
-  # Giffgaff 使用 O2 UK 网络 (MCC 234 / MNC 10), ePDG 域名形如
-  #   epdg.epc.mnc010.mcc234.pub.3gppnetwork.org
-  # IMS 注册走 IKEv2/IPsec (UDP 500 + 4500), 因此所选英国节点必须支持 UDP, 否则注册不上;
-  # 同时 mode 不要把 com.android.phone / 系统 radio 进程排除出代理 (packages.list 默认为空即可)
-  - DOMAIN-KEYWORD,mcc234,WiFi通话                  # 英国运营商 ePDG
-  - IP-CIDR,87.194.0.0/16,WiFi通话,no-resolve       # Giffgaff / O2 UK
-  - RULE-SET,UKWiFiCalling,WiFi通话                 # Vodafone / EE / VOXI / CMLink 等其余英国运营商
-  - DOMAIN-SUFFIX,pub.3gppnetwork.org,国内直连       # 其他国家运营商的 IMS 保持直连, 别被上面误代理
-
   # ---------- 本机与直连 ----------
   - GEOSITE,private,国内直连
   - GEOIP,private,国内直连,no-resolve
   - GEOSITE,connectivity-check,国内直连             # 网络连通性检测必须直连
+  - DOMAIN-SUFFIX,pub.3gppnetwork.org,国内直连      # 运营商 IMS (VoLTE/VoWiFi) 必须直连, 别被代理
   - GEOSITE,googlefcm,国内直连                      # FCM 推送直连更省电也更稳
   - GEOSITE,category-games@cn,国内直连              # 国服游戏
   - RULE-SET,GameDownload,国内直连                  # 游戏平台下载 CDN, 直连跑满带宽
@@ -344,8 +330,6 @@ rules:
   - PROCESS-NAME,com.max.xiaoheihe,国内社交            # 小黑盒
   - PROCESS-NAME,com.ss.android.ugc.aweme,国内社交     # 抖音
   - PROCESS-NAME,com.ss.android.ugc.livelite,国内社交  # 抖音极速版
-  - PROCESS-NAME,com.tencent.mm,国内社交               # 微信
-  - PROCESS-NAME,com.tencent.mobileqq,国内社交         # QQ
   - RULE-SET,Xiaohongshu,国内社交
   - RULE-SET,Xiaoheihe,国内社交
   - RULE-SET,Douyin,国内社交
@@ -404,9 +388,6 @@ RuleIP:     &RuleIP     {type: http, behavior: ipcidr, format: mrs, interval: 86
 RuleText:   &RuleText   {type: http, behavior: classical, format: text, interval: 86400, proxy: DIRECT}
 
 rule-providers:
-
-  # ---------- WiFi Calling: 英国运营商 (含 Giffgaff/O2) ----------
-  UKWiFiCalling: {<<: *RuleText, url: 'https://gcore.jsdelivr.net/gh/HenryChiao/wificalling@main/rules/UK-wifi-call.list'}
 
   # ---------- 广告拦截: 秋风广告规则 (AWAvenue Ads Rule) ----------
   AWAvenue: {<<: *RuleDomain, path: ./rule_providers/AWAvenue-Ads-Rule-Clash.mrs, url: 'https://gcore.jsdelivr.net/gh/TG-Twilight/AWAvenue-Ads-Rule@main/Filters/AWAvenue-Ads-Rule-Clash.mrs'}
